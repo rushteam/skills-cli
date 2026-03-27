@@ -65,7 +65,7 @@ skills-cli push --all
 |------|------|
 | `skills-cli config show` | 显示当前配置 |
 | `skills-cli config init` | 初始化默认配置 |
-| `skills-cli config add-agent` | 添加自定义 agent |
+| `skills-cli config add-agent <name> <project-path>` | 添加自定义 agent（写入 `~/.skills-cli/config.yaml`） |
 | `skills-cli config remove-agent` | 移除 agent |
 | `skills-cli config add-project <path>` | 注册工程目录 |
 | `skills-cli config remove-project <path>` | 移除工程注册 |
@@ -130,6 +130,21 @@ skills-cli watch --direction pull
 
 # 双向监听
 skills-cli watch --direction both
+```
+
+## 自定义 Agent
+
+配置保存在 `~/.skills-cli/config.yaml` 的 `agents` 字段。添加新 agent 时只需名称与工程内 skills 目录的相对路径；未指定 `--global-path` 时，会按内置规则推导为 `~/<project-path>`。
+
+```bash
+# 名称 + 工程内路径（global 默认为 ~/.my-tool/skills）
+skills-cli config add-agent my-tool .my-tool/skills
+
+# 显式指定全局路径
+skills-cli config add-agent my-tool .my-tool/skills --global-path ~/.config/my-tool/skills
+
+# 等价于仅用 flag
+skills-cli config add-agent --name my-tool --project-path .my-tool/skills
 ```
 
 ## 工程管理

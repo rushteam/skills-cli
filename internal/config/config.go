@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -111,6 +112,18 @@ func expandPath(p string) string {
 
 func ResolveGlobalPath(agent AgentConfig) string {
 	return expandPath(agent.GlobalPath)
+}
+
+// DeriveDefaultGlobalPath maps a project-relative skills dir to the usual home path,
+// e.g. ".cursor/skills" -> "~/.cursor/skills".
+func DeriveDefaultGlobalPath(projectPath string) string {
+	p := strings.TrimSpace(projectPath)
+	p = strings.TrimPrefix(p, "./")
+	p = strings.TrimPrefix(p, "/")
+	if p == "" {
+		return ""
+	}
+	return "~/" + p
 }
 
 func DefaultAgents() map[string]AgentConfig {

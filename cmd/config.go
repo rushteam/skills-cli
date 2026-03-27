@@ -61,25 +61,63 @@ var (
 )
 
 var configAddAgentCmd = &cobra.Command{
-	Use:   "add-agent",
-	Short: "Add a custom agent",
+	Use:   "add-agent [name] [project-path]",
+	Short: "Add a custom agent to ~/.skills-cli/config.yaml",
+	Long: `Add or overwrite an agent entry under the agents map in the config file.
+
+Provide name and project-level skills path (relative to repo root). If --global-path
+is omitted, it defaults to ~/<project-path> (same pattern as built-in agents).
+
+Examples:
+  skills-cli config add-agent my-tool .my-tool/skills
+  skills-cli config add-agent my-tool .my-tool/skills --global-path ~/.config/my-tool/skills`,
+	Args: cobra.MaximumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if addAgentName == "" || addAgentProjectPath == "" || addAgentGlobalPath == "" {
-			return fmt.Errorf("--name, --project-path, and --global-path are required")
+		name := addAgentName
+		proj := addAgentProjectPath
+		switch len(args) {
+		case 2:
+			if name == "" {
+				name = args[0]
+			}
+			if proj == "" {
+				proj = args[1]
+			}
+		case 1:
+			if name == "" {
+				name = args[0]
+			}
 		}
+		if name == "" {
+			return fmt.Errorf("agent name is required (first argument or --name)")
+		}
+		if proj == "" {
+			return fmt.Errorf("project skills path is required (second argument or --project-path), e.g. .cursor/skills")
+		}
+		global := addAgentGlobalPath
+		if global == "" {
+			global = config.DeriveDefaultGlobalPath(proj)
+		}
+		if global == "" {
+			return fmt.Errorf("could not derive global path from %q; set --global-path explicitly", proj)
+		}
+
 		okStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 		cfg, err := config.Load()
 		if err != nil {
 			return err
 		}
-		cfg.AddAgent(addAgentName, config.AgentConfig{
-			ProjectPath: addAgentProjectPath,
-			GlobalPath:  addAgentGlobalPath,
+		cfg.AddAgent(name, config.AgentConfig{
+			ProjectPath: proj,
+			GlobalPath:  global,
 		})
 		if err := cfg.Save(); err != nil {
 			return err
 		}
-		fmt.Println(okStyle.Render(fmt.Sprintf("✓ Agent %q added", addAgentName)))
+		fmt.Println(okStyle.Render(fmt.Sprintf("✓ Agent %q added", name)))
+		fmt.Println(dimStyle.Render("  project_path: "+proj))
+		fmt.Println(dimStyle.Render("  global_path:  "+global))
+		fmt.Println(dimStyle.Render("  "+config.ConfigPath()))
 		return nil
 	},
 }
