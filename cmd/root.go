@@ -44,6 +44,7 @@ func showBanner() {
 	fmt.Printf("  %s %s  %s\n", dimStyle.Render("$"), textStyle.Render("skills-cli add <source>"), dimStyle.Render("Add a skill from GitHub"))
 	fmt.Printf("  %s %s      %s\n", dimStyle.Render("$"), textStyle.Render("skills-cli find"), dimStyle.Render("Search for skills"))
 	fmt.Printf("  %s %s      %s\n", dimStyle.Render("$"), textStyle.Render("skills-cli list"), dimStyle.Render("List installed skills"))
+	fmt.Printf("  %s %s      %s\n", dimStyle.Render("$"), textStyle.Render("skills-cli scan"), dimStyle.Render("Scan agents (dry-run)"))
 	fmt.Printf("  %s %s      %s\n", dimStyle.Render("$"), textStyle.Render("skills-cli pull"), dimStyle.Render("Pull skills from agents"))
 	fmt.Printf("  %s %s      %s\n", dimStyle.Render("$"), textStyle.Render("skills-cli push"), dimStyle.Render("Push skills to agents"))
 	fmt.Println()
@@ -75,6 +76,7 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(scanCmd)
 	rootCmd.AddCommand(pullCmd)
 	rootCmd.AddCommand(pushCmd)
 	rootCmd.AddCommand(findCmd)
