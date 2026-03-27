@@ -18,14 +18,14 @@ var watchCmd = &cobra.Command{
 	Short: "Watch for changes and auto-sync skills",
 	Long: `Start a file watcher that monitors skill directories and automatically
 syncs changes. Supports three directions:
-  central_to_agents (default): Watch central dir, push to agents
-  agents_to_central: Watch agent dirs, pull to central
-  bidirectional: Watch both, sync in both directions`,
+  push (default): Watch central dir, push to agents
+  pull: Watch agent dirs, pull to central
+  both: Watch both, sync in both directions`,
 	RunE: runWatch,
 }
 
 func init() {
-	watchCmd.Flags().StringVar(&watchDirection, "direction", "", "Watch direction (central_to_agents|agents_to_central|bidirectional)")
+	watchCmd.Flags().StringVar(&watchDirection, "direction", "", "Watch direction (push|pull|both)")
 }
 
 func runWatch(cmd *cobra.Command, args []string) error {
@@ -34,9 +34,9 @@ func runWatch(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	direction := cfg.Sync.Watch.Direction
+	direction := config.NormalizeWatchDirection(cfg.Sync.Watch.Direction)
 	if watchDirection != "" {
-		direction = watchDirection
+		direction = config.NormalizeWatchDirection(watchDirection)
 	}
 	if direction == "" {
 		direction = config.WatchCentralToAgents

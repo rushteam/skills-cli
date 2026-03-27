@@ -224,11 +224,11 @@ var configSetSyncCmd = &cobra.Command{
 // config set-watch-direction
 var configSetWatchDirCmd = &cobra.Command{
 	Use:   "set-watch-direction <direction>",
-	Short: "Set watch direction (central_to_agents|agents_to_central|bidirectional)",
+	Short: "Set watch direction (push|pull|both)",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		dir := args[0]
-		valid := []string{config.WatchCentralToAgents, config.WatchAgentsToCentral, config.WatchBidirectional}
+		dir := config.NormalizeWatchDirection(args[0])
+		valid := config.ValidWatchDirections()
 		found := false
 		for _, v := range valid {
 			if v == dir {
@@ -237,7 +237,7 @@ var configSetWatchDirCmd = &cobra.Command{
 			}
 		}
 		if !found {
-			return fmt.Errorf("invalid direction %q, must be one of: %s", dir, strings.Join(valid, ", "))
+			return fmt.Errorf("invalid direction %q, must be one of: %s", args[0], strings.Join(valid, ", "))
 		}
 		cfg, err := config.Load()
 		if err != nil {

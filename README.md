@@ -1,6 +1,6 @@
 # skills-cli
 
-跨 AI Agent 的 Skills 统一管理工具。参考 [vercel-labs/skills](https://github.com/vercel-labs/skills) 设计，用 Go 实现，扩展本地 pull/push/watch 同步能力。
+跨 AI Agent 的 Skills 统一管理工具，用 Go 实现，扩展本地 pull/push/watch 同步能力。
 
 支持 40+ AI Agent（Cursor、Claude Code、Windsurf、Codex、Trae 等），统一管理 skill 文件。
 
@@ -52,6 +52,7 @@ skills-cli push --all
 | 命令 | 说明 |
 |------|------|
 | `skills-cli list` | 列出所有已安装 skills（中央/全局/工程） |
+| `skills-cli scan` | 扫描 agent 目录，显示同步状态（不拉取） |
 | `skills-cli pull` | 从 agent 目录提取到中央目录 |
 | `skills-cli push` | 从中央目录下发到 agent 目录 |
 | `skills-cli watch` | 监听文件变化，自动同步 |
@@ -123,10 +124,10 @@ skills-cli pull --force --all
 skills-cli watch
 
 # 监听 agent 目录变化，自动拉取到中央
-skills-cli watch --direction agents_to_central
+skills-cli watch --direction pull
 
 # 双向监听
-skills-cli watch --direction bidirectional
+skills-cli watch --direction both
 ```
 
 ## 工程管理

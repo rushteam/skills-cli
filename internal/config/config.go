@@ -17,10 +17,27 @@ const (
 	SkillsDir    = "skills"
 	LockVersion  = 1
 
-	WatchCentralToAgents = "central_to_agents"
-	WatchAgentsToCentral = "agents_to_central"
-	WatchBidirectional   = "bidirectional"
+	WatchCentralToAgents = "push"
+	WatchAgentsToCentral = "pull"
+	WatchBidirectional   = "both"
 )
+
+var watchDirectionAliases = map[string]string{
+	"central_to_agents": WatchCentralToAgents,
+	"agents_to_central": WatchAgentsToCentral,
+	"bidirectional":     WatchBidirectional,
+}
+
+func NormalizeWatchDirection(dir string) string {
+	if v, ok := watchDirectionAliases[dir]; ok {
+		return v
+	}
+	return dir
+}
+
+func ValidWatchDirections() []string {
+	return []string{WatchCentralToAgents, WatchAgentsToCentral, WatchBidirectional}
+}
 
 type AgentConfig struct {
 	ProjectPath string `yaml:"project_path" json:"project_path"`
