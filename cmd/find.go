@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
@@ -34,6 +35,9 @@ func findNonInteractive(query string) error {
 
 	if len(results) == 0 {
 		fmt.Println(dimStyle.Render(fmt.Sprintf("No skills found for %q", query)))
+		if hasNonASCII(query) {
+			fmt.Println(dimStyle.Render("Tip: skills.sh only indexes English skill names. Try searching in English."))
+		}
 		return nil
 	}
 
@@ -61,8 +65,8 @@ func findNonInteractive(query string) error {
 func findInteractive() error {
 	var query string
 	err := huh.NewInput().
-		Title("Search skills:").
-		Placeholder("Type to search (min 2 chars)...").
+		Title("Search skills (English only):").
+		Placeholder("e.g. git, react, testing...").
 		Value(&query).
 		Run()
 	if err != nil {
@@ -79,6 +83,9 @@ func findInteractive() error {
 	}
 	if len(results) == 0 {
 		fmt.Println(dimStyle.Render("No skills found"))
+		if hasNonASCII(query) {
+			fmt.Println(dimStyle.Render("Tip: skills.sh only indexes English skill names. Try searching in English."))
+		}
 		return nil
 	}
 
@@ -115,4 +122,13 @@ func findInteractive() error {
 		return runAddWithArgs(parts[0], parts[1])
 	}
 	return nil
+}
+
+func hasNonASCII(s string) bool {
+	for _, r := range s {
+		if r > unicode.MaxASCII {
+			return true
+		}
+	}
+	return false
 }
