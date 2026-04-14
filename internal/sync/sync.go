@@ -184,12 +184,12 @@ func Push(targets []SyncTarget, opts SyncOptions) error {
 		if t.Scope == "project" {
 			label = fmt.Sprintf("%s @ %s", t.AgentName, agent.ShortenPath(t.Project))
 		}
-		fmt.Println(infoStyle.Render(fmt.Sprintf("  Pushing to %s (%d skills)", label, len(skillNames))))
-
-		if err := os.MkdirAll(t.Dir, 0o755); err != nil {
-			fmt.Println(errorStyle.Render(fmt.Sprintf("    Failed to create dir %s: %v", t.Dir, err)))
+		if !dirExists(t.Dir) {
+			fmt.Println(dimStyle.Render(fmt.Sprintf("  Skipping %s: directory does not exist (%s)", label, t.Dir)))
 			continue
 		}
+
+		fmt.Println(infoStyle.Render(fmt.Sprintf("  Pushing to %s (%d skills)", label, len(skillNames))))
 
 		for _, name := range skillNames {
 			srcDir := filepath.Join(centralDir, name)
