@@ -17,10 +17,13 @@ var (
 )
 
 var pushCmd = &cobra.Command{
-	Use:   "push",
+	Use:   "push [agent...]",
 	Short: "Push skills from central store to agent directories",
 	Long: `Push skills from the central skills store (~/.skills-cli/skills/) to
-global agent directories and/or project-level agent directories.`,
+global agent directories and/or project-level agent directories.
+
+Agent names can be passed as positional arguments (e.g. push claude cursor)
+or via the --agent flag. Both are merged when provided together.`,
 	RunE: runPush,
 }
 
@@ -38,7 +41,8 @@ func runPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	targets := syncer.ResolveTargets(cfg, pushAgent, pushProject, pushAll)
+	agents := append(pushAgent, args...)
+	targets := syncer.ResolveTargets(cfg, agents, pushProject, pushAll)
 	if len(targets) == 0 {
 		fmt.Println(dimStyle.Render("No targets to push to."))
 		fmt.Println(dimStyle.Render("Use --agent, --project, or --all to specify destinations."))
