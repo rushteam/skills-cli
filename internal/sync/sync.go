@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
@@ -74,12 +75,14 @@ func ResolveTargets(cfg *config.Config, agentNames []string, projectPaths []stri
 
 	if len(agentNames) > 0 {
 		for _, name := range agentNames {
-			ag, ok := cfg.Agents[name]
-			if !ok {
+			resolved := resolveAgentName(name, cfg.Agents)
+			if resolved == "" {
+				fmt.Fprintf(os.Stderr, "  Warning: unknown agent %q, skipping\n", name)
 				continue
 			}
+			ag := cfg.Agents[resolved]
 			globalDir := config.ResolveGlobalPath(ag)
-			targets = append(targets, SyncTarget{AgentName: name, Dir: globalDir, Scope: "global"})
+			targets = append(targets, SyncTarget{AgentName: resolved, Dir: globalDir, Scope: "global"})
 		}
 		return targets
 	}
@@ -237,6 +240,20 @@ func Push(targets []SyncTarget, opts SyncOptions) error {
 		}
 	}
 	return nil
+}
+
+// resolveAgentName returns the exact key in agents that matches name, trying
+// exact match first, then prefix match (e.g. "claude" → "claude-code").
+func resolveAgentName(name string, agents map[string]config.AgentConfig) string {
+	if _, ok := agents[name]; ok {
+		return name
+	}
+	for key := range agents {
+		if strings.HasPrefix(key, name) {
+			return key
+		}
+	}
+	return ""
 }
 
 func promptConflict(skillName string) (string, error) {
